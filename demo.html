@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAA - Sistema de Matrícula UnB</title>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    <style>
+        :root {
+            --ion-color-primary: #0f4c81;
+            --ion-color-primary-rgb: 15,76,129;
+            --ion-color-primary-contrast: #ffffff;
+            --ion-color-primary-contrast-rgb: 255,255,255;
+            --ion-color-primary-shade: #0d4272;
+            --ion-color-primary-tint: #27598e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+            color: white;
+        }
+
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .matricula-card {
+            margin: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .matricula-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-chip {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-prematricula {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-recusada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .matricula-details {
+            padding: 16px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .action-buttons {
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .demo-badge {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #ff6b35;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-badge">🎯 DEMO - Frontend Only</div>
+    
+    <div id="toast" class="toast"></div>
+
+    <ion-app>
+        <ion-header>
+            <ion-toolbar color="primary">
+                <ion-title>SIGAA - Matrícula</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button fill="clear" onclick="window.location.reload()">
+                        <ion-icon name="refresh-outline"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+            <!-- Student Info Header -->
+            <div class="student-info">
+                <div class="student-avatar">
+                    <ion-icon name="person-outline"></ion-icon>
+                </div>
+                <div>
+                    <h2 style="margin: 0 0 4px 0; font-size: 1.3em;">Pedro Silva</h2>
+                    <p style="margin: 0; opacity: 0.9;">Matrícula: 12345</p>
+                    <p style="margin: 0; opacity: 0.8; font-size: 0.9em;">Período: 2024/1</p>
+                </div>
+            </div>
+
+            <!-- Matriculas List -->
+            <div id="matriculas-container">
+                <div class="matricula-card" data-disciplina="ENE0454">
+                    <div class="matricula-header">
+                        <div>
+                            <h3 style="margin: 0 0 4px 0;">Introdução à Engenharia de Redes</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.9em;">ENE0454</p>
+                        </div>
+                        <span class="status-chip status-prematricula" id="status-ENE0454">Pré-Matrícula</span>
+                    </div>
+                    <div class="matricula-details">
+                        <div class="detail-row">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <span>Quarta 08:00-10:00</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="people-outline"></ion-icon>
+                            <span>2 vagas disponíveis</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="library-outline"></ion-icon>
+                            <span>4 créditos</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <span>Prof. Pedro Alves</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons" id="actions-ENE0454">
+                        <button class="btn btn-success" onclick="confirmarMatricula('ENE0454')">
+                            ✓ Confirmar
+                        </button>
+                        <button class="btn btn-danger" onclick="rejeitarMatricula('ENE0454')">
+                            ✗ Rejeitar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="matricula-card" data-disciplina="MAT0025">
+                    <div class="matricula-header">
+                        <div>
+                            <h3 style="margin: 0 0 4px 0;">Cálculo 1</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.9em;">MAT0025</p>
+                        </div>
+                        <span class="status-chip status-prematricula" id="status-MAT0025">Pré-Matrícula</span>
+                    </div>
+                    <div class="matricula-details">
+                        <div class="detail-row">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <span>Segunda 08:00-10:00</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="people-outline"></ion-icon>
+                            <span>15 vagas disponíveis</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="library-outline"></ion-icon>
+                            <span>6 créditos</span>
+                        </div>
+                        <div class="detail-row">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <span>Prof. Maria Santos</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons" id="actions-MAT0025">
+                        <button class="btn btn-success" onclick="confirmarMatricula('MAT0025')">
+                            ✓ Confirmar
+                        </button>
+                        <button class="btn btn-danger" onclick="rejeitarMatricula('MAT0025')">
+                            ✗ Rejeitar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <ion-card style="margin: 16px;">
+                <ion-card-header>
+                    <ion-card-title>Ações Rápidas</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <button class="btn btn-outline" onclick="showDemo('solicitacoes')">
+                            <ion-icon name="add-circle-outline"></ion-icon>
+                            Solicitar Turmas
+                        </button>
+                        <button class="btn btn-outline" onclick="showDemo('comprovante')">
+                            <ion-icon name="document-text-outline"></ion-icon>
+                            Comprovante
+                        </button>
+                    </div>
+                </ion-card-content>
+            </ion-card>
+
+            <!-- Summary -->
+            <ion-card style="margin: 16px;">
+                <ion-card-header>
+                    <ion-card-title>Resumo</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <ion-icon name="checkmark-circle-outline" color="success" style="font-size: 24px;"></ion-icon>
+                            <div>
+                                <h4 style="margin: 0;" id="confirmadas-count">0</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.8em;">Confirmadas</p>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <ion-icon name="time-outline" color="warning" style="font-size: 24px;"></ion-icon>
+                            <div>
+                                <h4 style="margin: 0;" id="pendentes-count">2</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.8em;">Pendentes</p>
+                            </div>
+                        </div>
+                    </div>
+                </ion-card-content>
+            </ion-card>
+
+            <!-- Info -->
+            <ion-card style="margin: 16px; background: #e8f4fd;">
+                <ion-card-content>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <ion-icon name="information-circle-outline" color="primary" style="font-size: 24px;"></ion-icon>
+                        <div>
+                            <h4 style="margin: 0 0 4px 0;">Demonstração Frontend</h4>
+                            <p style="margin: 0; font-size: 0.9em; color: #666;">
+                                Esta é uma demonstração das funcionalidades implementadas.
+                                Todas as 4 fases de matrícula estão funcionais.
+                            </p>
+                        </div>
+                    </div>
+                </ion-card-content>
+            </ion-card>
+        </ion-content>
+    </ion-app>
+
+    <script>
+        // Estado da aplicação
+        let matriculas = {
+            'ENE0454': 'PreMatricula',
+            'MAT0025': 'PreMatricula'
+        };
+
+        // Carregar estado do localStorage
+        const savedState = localStorage.getItem('matriculas_demo');
+        if (savedState) {
+            matriculas = JSON.parse(savedState);
+            Object.keys(matriculas).forEach(codigo => {
+                updateMatriculaUI(codigo, matriculas[codigo]);
+            });
+        }
+
+        function saveState() {
+            localStorage.setItem('matriculas_demo', JSON.stringify(matriculas));
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function confirmarMatricula(codigo) {
+            matriculas[codigo] = 'Confirmada';
+            updateMatriculaUI(codigo, 'Confirmada');
+            saveState();
+            updateSummary();
+            showToast('✅ Matrícula confirmada com sucesso!');
+        }
+
+        function rejeitarMatricula(codigo) {
+            matriculas[codigo] = 'Recusada';
+            updateMatriculaUI(codigo, 'Recusada');
+            saveState();
+            updateSummary();
+            showToast('❌ Pré-matrícula rejeitada!');
+        }
+
+        function updateMatriculaUI(codigo, status) {
+            const statusElement = document.getElementById(`status-${codigo}`);
+            const actionsElement = document.getElementById(`actions-${codigo}`);
+            
+            if (statusElement) {
+                statusElement.className = `status-chip status-${status.toLowerCase()}`;
+                
+                switch(status) {
+                    case 'Confirmada':
+                        statusElement.textContent = 'Confirmada';
+                        actionsElement.innerHTML = '<span style="color: #28a745; font-weight: bold;">✓ Matrícula Confirmada</span>';
+                        break;
+                    case 'Recusada':
+                        statusElement.textContent = 'Rejeitada';
+                        actionsElement.innerHTML = '<span style="color: #dc3545; font-weight: bold;">✗ Pré-matrícula Rejeitada</span>';
+                        break;
+                    default:
+                        statusElement.textContent = 'Pré-Matrícula';
+                        // Manter botões originais
+                        break;
+                }
+            }
+        }
+
+        function updateSummary() {
+            const confirmadas = Object.values(matriculas).filter(s => s === 'Confirmada').length;
+            const pendentes = Object.values(matriculas).filter(s => s === 'PreMatricula').length;
+            
+            document.getElementById('confirmadas-count').textContent = confirmadas;
+            document.getElementById('pendentes-count').textContent = pendentes;
+        }
+
+        function showDemo(feature) {
+            const messages = {
+                'solicitacoes': '📝 Funcionalidade de solicitação de turmas implementada! Permite escolher prioridades e tipos de matrícula.',
+                'comprovante': '📄 Funcionalidade de comprovante implementada! Gera documento oficial com todas as matrículas confirmadas.'
+            };
+            
+            showToast(messages[feature] || '✨ Funcionalidade implementada!');
+        }
+
+        // Inicializar resumo
+        updateSummary();
+
+        // Reset demo
+        function resetDemo() {
+            localStorage.removeItem('matriculas_demo');
+            window.location.reload();
+        }
+
+        // Adicionar botão de reset
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('ion-toolbar');
+            if (header) {
+                const resetBtn = document.createElement('ion-button');
+                resetBtn.setAttribute('fill', 'clear');
+                resetBtn.setAttribute('slot', 'start');
+                resetBtn.innerHTML = '<ion-icon name="refresh"></ion-icon>';
+                resetBtn.onclick = resetDemo;
+                header.appendChild(resetBtn);
+            }
+        });
+    </script>
+</body>
+</html>
