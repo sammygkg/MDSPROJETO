@@ -1,0 +1,161 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>SIGAA - Matrícula</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="doRefresh($event)">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading Indicator -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando matrículas...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="content-container">
+    <!-- Student Info Header -->
+    <ion-card class="student-info">
+      <ion-card-content>
+        <div class="student-header">
+          <ion-avatar>
+            <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Avatar">
+          </ion-avatar>
+          <div class="student-details">
+            <h2>{{ aluno?.nome }}</h2>
+            <p>Matrícula: {{ aluno?.matricula }}</p>
+            <p>Período: {{ periodoAtual }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Quick Actions -->
+    <ion-card class="quick-actions">
+      <ion-card-header>
+        <ion-card-title>Ações Rápidas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="action-grid">
+          <ion-button fill="outline" (click)="navegarParaSolicitacoes()">
+            <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+            Solicitar Turmas
+          </ion-button>
+          
+          <ion-button fill="outline" (click)="navegarParaComprovante()">
+            <ion-icon name="document-text-outline" slot="start"></ion-icon>
+            Comprovante
+          </ion-button>
+          
+          <ion-button fill="outline" (click)="navegarParaHistorico()">
+            <ion-icon name="time-outline" slot="start"></ion-icon>
+            Histórico
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Enrollments List -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Suas Matrículas</ion-card-title>
+        <ion-card-subtitle>{{ periodoAtual }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="matriculas.length === 0" class="empty-state">
+          <ion-icon name="school-outline" size="large"></ion-icon>
+          <h3>Nenhuma matrícula encontrada</h3>
+          <p>Você ainda não possui matrículas para este período.</p>
+        </div>
+
+        <ion-list *ngIf="matriculas.length > 0">
+          <ion-item 
+            *ngFor="let matricula of matriculas" 
+            button 
+            (click)="verDetalhes(matricula)"
+            class="matricula-item">
+            
+            <div class="matricula-content">
+              <div class="matricula-header">
+                <h3>{{ matricula.nome }}</h3>
+                <ion-chip [color]="getStatusColor(matricula.status)" size="small">
+                  <ion-label>{{ getStatusText(matricula.status) }}</ion-label>
+                </ion-chip>
+              </div>
+              
+              <p class="disciplina-codigo">{{ matricula.codigo }}</p>
+              
+              <div class="matricula-details">
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ matricula.horario.dia }} - {{ matricula.horario.horaInicio }}h</span>
+                </div>
+                
+                <div class="detail-item">
+                  <ion-icon name="people-outline"></ion-icon>
+                  <span>{{ matricula.vagasDisponiveis }} vagas disponíveis</span>
+                </div>
+                
+                <div class="detail-item" *ngIf="matricula.creditos">
+                  <ion-icon name="library-outline"></ion-icon>
+                  <span>{{ matricula.creditos }} créditos</span>
+                </div>
+              </div>
+            </div>
+            
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Status Summary -->
+    <ion-card *ngIf="matriculas.length > 0">
+      <ion-card-header>
+        <ion-card-title>Resumo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <div>
+              <h4>{{ getMatriculasByStatus('Confirmada').length }}</h4>
+              <p>Confirmadas</p>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <ion-icon name="time-outline" color="warning"></ion-icon>
+            <div>
+              <h4>{{ getMatriculasByStatus('PreMatricula').length }}</h4>
+              <p>Pendentes</p>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <ion-icon name="close-circle-outline" color="danger"></ion-icon>
+            <div>
+              <h4>{{ getMatriculasByStatus('Recusada').length }}</h4>
+              <p>Rejeitadas</p>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <ion-icon name="library-outline" color="primary"></ion-icon>
+            <div>
+              <h4>{{ getTotalCreditos() }}</h4>
+              <p>Créditos</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

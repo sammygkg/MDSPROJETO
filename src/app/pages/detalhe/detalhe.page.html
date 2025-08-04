@@ -1,0 +1,134 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalhes da Matrícula</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Carregando dados...</p>
+  </div>
+
+  <div *ngIf="!isLoading && matricula" class="content-container">
+    <!-- Informações do Aluno -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Informações do Aluno</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>
+            <h3>{{ aluno?.nome }}</h3>
+            <p>Matrícula: {{ aluno?.matricula }}</p>
+            <p *ngIf="aluno?.email">Email: {{ aluno?.email }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Informações da Disciplina -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ matricula.nome }}</ion-card-title>
+        <ion-card-subtitle>{{ matricula.codigo }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Status da Matrícula -->
+        <ion-chip [color]="statusColor">
+          <ion-icon name="school-outline"></ion-icon>
+          <ion-label>{{ statusText }}</ion-label>
+        </ion-chip>
+
+        <!-- Informações das Vagas -->
+        <ion-item lines="none">
+          <ion-icon name="people-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Vagas</h3>
+            <p>Ofertadas: {{ matricula.vagasOfertadas }}</p>
+            <p>Ocupadas: {{ matricula.vagasOcupadas }}</p>
+            <p>Disponíveis: {{ matricula.vagasDisponiveis }}</p>
+          </ion-label>
+        </ion-item>
+
+        <!-- Horário -->
+        <ion-item lines="none">
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Horário</h3>
+            <p>{{ matricula.horario.dia }} - {{ matricula.horario.horaInicio }} às {{ matricula.horario.horaFim }}</p>
+          </ion-label>
+        </ion-item>
+
+        <!-- Créditos -->
+        <ion-item lines="none" *ngIf="matricula.creditos">
+          <ion-icon name="library-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Créditos</h3>
+            <p>{{ matricula.creditos }}</p>
+          </ion-label>
+        </ion-item>
+
+        <!-- Professores -->
+        <ion-item lines="none" *ngIf="matricula.professores && matricula.professores.length > 0">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Professor(es)</h3>
+            <p *ngFor="let professor of matricula.professores">{{ professor }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Ações -->
+    <div class="action-buttons" *ngIf="matricula.status === 'PreMatricula'">
+      <ion-button 
+        expand="block" 
+        color="success" 
+        (click)="confirmarMatricula()"
+        [disabled]="isLoading">
+        <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+        Confirmar Matrícula
+      </ion-button>
+
+      <ion-button 
+        expand="block" 
+        color="danger" 
+        fill="outline"
+        (click)="cancelarMatricula()"
+        [disabled]="isLoading">
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+        Rejeitar Pré-Matrícula
+      </ion-button>
+    </div>
+
+    <!-- Status Final -->
+    <ion-card *ngIf="matricula.status !== 'PreMatricula'">
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-icon 
+            [name]="matricula.status === 'Confirmada' ? 'checkmark-circle-outline' : 'close-circle-outline'" 
+            slot="start"
+            [color]="statusColor">
+          </ion-icon>
+          <ion-label>
+            <h3>Status da Matrícula</h3>
+            <p>{{ statusText }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botão Voltar -->
+    <ion-button 
+      expand="block" 
+      fill="clear" 
+      (click)="voltarParaHome()">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Voltar ao Início
+    </ion-button>
+  </div>
+</ion-content>

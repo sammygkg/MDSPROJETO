@@ -1,0 +1,227 @@
+.content-container {
+  padding: 16px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+}
+
+.student-info {
+  margin-bottom: 16px;
+  
+  .student-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    ion-avatar {
+      width: 60px;
+      height: 60px;
+    }
+
+    .student-details {
+      flex: 1;
+
+      h2 {
+        margin: 0 0 4px 0;
+        font-size: 1.4em;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+      }
+
+      p {
+        margin: 2px 0;
+        color: var(--ion-color-medium);
+        font-size: 0.9em;
+      }
+    }
+  }
+}
+
+.quick-actions {
+  margin-bottom: 16px;
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+
+    ion-button {
+      --border-radius: 8px;
+      margin: 0;
+      height: 48px;
+      font-size: 0.85em;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+
+  ion-icon {
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: var(--ion-color-dark);
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 0.9em;
+  }
+}
+
+.matricula-item {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-light);
+
+  .matricula-content {
+    width: 100%;
+    padding: 12px 16px;
+
+    .matricula-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+
+      h3 {
+        margin: 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        flex: 1;
+        margin-right: 8px;
+        line-height: 1.3;
+      }
+
+      ion-chip {
+        margin: 0;
+        flex-shrink: 0;
+      }
+    }
+
+    .disciplina-codigo {
+      margin: 0 0 12px 0;
+      font-size: 0.85em;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+    }
+
+    .matricula-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8em;
+        color: var(--ion-color-medium);
+
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  ion-icon[slot="end"] {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+
+    div {
+      h4 {
+        margin: 0 0 2px 0;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.8em;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+ion-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .content-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .action-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .matricula-item {
+    border-color: var(--ion-color-dark);
+  }
+
+  .summary-item {
+    background: var(--ion-color-dark);
+  }
+
+  ion-card {
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+  }
+}

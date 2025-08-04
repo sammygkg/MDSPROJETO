@@ -1,0 +1,190 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Solicitar Turmas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="content-container">
+    <!-- Phase Selection -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Tipo de Solicitação</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-segment [(ngModel)]="fase" (ionChange)="onFaseChange()">
+          <ion-segment-button value="Matricula">
+            <ion-label>Matrícula</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="Rematricula">
+            <ion-label>Rematrícula</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="Extraordinaria">
+            <ion-label>Extraordinária</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+        
+        <div class="phase-info">
+          <p *ngIf="fase === 'Matricula'">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Fase de matrícula regular - processamento em lote
+          </p>
+          <p *ngIf="fase === 'Rematricula'">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Fase de rematrícula - ajustes após matrícula regular
+          </p>
+          <p *ngIf="fase === 'Extraordinaria'">
+            <ion-icon name="alert-circle-outline" color="warning"></ion-icon>
+            Matrícula extraordinária - processamento imediato
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Current Requests -->
+    <ion-card *ngIf="solicitacoes.length > 0">
+      <ion-card-header>
+        <ion-card-title>Suas Solicitações</ion-card-title>
+        <ion-card-subtitle>{{ solicitacoes.length }} disciplina(s) solicitada(s)</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-reorder-group [disabled]="false">
+          <ion-item *ngFor="let solicitacao of solicitacoes; let i = index" class="solicitacao-item">
+            <div class="solicitacao-content">
+              <div class="solicitacao-header">
+                <ion-chip color="primary" class="prioridade-chip">
+                  <ion-label>{{ solicitacao.prioridade }}ª</ion-label>
+                </ion-chip>
+                <h3>{{ solicitacao.turma?.disciplina.nome }}</h3>
+              </div>
+              
+              <p class="disciplina-info">
+                {{ solicitacao.turma?.disciplina.codigo }} - Turma {{ solicitacao.turma?.codigo }}
+              </p>
+              
+              <div class="turma-details">
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ getHorariosString(solicitacao.turma!) }}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{ getProfessoresString(solicitacao.turma!) }}</span>
+                </div>
+              </div>
+
+              <div class="solicitacao-actions">
+                <ion-button fill="clear" size="small" (click)="removerSolicitacao(i)">
+                  <ion-icon name="trash-outline" color="danger"></ion-icon>
+                </ion-button>
+                
+                <ion-item lines="none" class="priority-input">
+                  <ion-label position="stacked">Prioridade</ion-label>
+                  <ion-input 
+                    type="number" 
+                    min="1" 
+                    max="10" 
+                    [value]="solicitacao.prioridade"
+                    (ionBlur)="alterarPrioridade(i, $event.target.value)">
+                  </ion-input>
+                </ion-item>
+              </div>
+            </div>
+            
+            <ion-reorder slot="end"></ion-reorder>
+          </ion-item>
+        </ion-reorder-group>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Available Classes -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Turmas Disponíveis</ion-card-title>
+        <ion-card-subtitle>{{ periodoAtual }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="isLoading" class="loading-container">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Carregando turmas...</p>
+        </div>
+
+        <div *ngIf="!isLoading && getTurmasNaoSolicitadas().length === 0" class="empty-state">
+          <ion-icon name="checkmark-circle-outline" size="large" color="success"></ion-icon>
+          <h3>Todas as turmas foram solicitadas</h3>
+          <p>Você já solicitou todas as turmas disponíveis.</p>
+        </div>
+
+        <ion-list *ngIf="!isLoading && getTurmasNaoSolicitadas().length > 0">
+          <ion-item 
+            *ngFor="let turma of getTurmasNaoSolicitadas()" 
+            class="turma-item">
+            
+            <div class="turma-content">
+              <div class="turma-header">
+                <h3>{{ turma.disciplina.nome }}</h3>
+                <div class="vagas-info">
+                  <ion-chip [color]="turma.vagas_disponiveis > 10 ? 'success' : turma.vagas_disponiveis > 0 ? 'warning' : 'danger'">
+                    <ion-label>{{ turma.vagas_disponiveis }} vagas</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+              
+              <p class="disciplina-codigo">{{ turma.disciplina.codigo }} - Turma {{ turma.codigo }}</p>
+              
+              <div class="turma-details">
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ getHorariosString(turma) }}</span>
+                </div>
+                
+                <div class="detail-item">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{ getProfessoresString(turma) }}</span>
+                </div>
+                
+                <div class="detail-item">
+                  <ion-icon name="library-outline"></ion-icon>
+                  <span>{{ turma.disciplina.creditos }} créditos</span>
+                </div>
+                
+                <div class="detail-item">
+                  <ion-icon name="people-outline"></ion-icon>
+                  <span>{{ turma.vagas_ocupadas }}/{{ turma.vagas_ofertadas }} ocupadas</span>
+                </div>
+              </div>
+            </div>
+            
+            <ion-button 
+              slot="end" 
+              fill="outline" 
+              (click)="adicionarSolicitacao(turma)"
+              [disabled]="turma.vagas_disponiveis === 0">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" *ngIf="solicitacoes.length > 0">
+      <ion-button expand="block" color="primary" (click)="voltarParaHome()">
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+        Finalizar Solicitações
+      </ion-button>
+      
+      <ion-text color="medium">
+        <p class="info-text">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          {{ fase === 'Extraordinaria' ? 
+              'Matrículas extraordinárias são processadas imediatamente.' : 
+              'Suas solicitações serão processadas na próxima fase de matrícula.' }}
+        </p>
+      </ion-text>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,214 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Comprovante de Matrícula</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="recarregarComprovante()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Gerando comprovante...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="content-container">
+    <!-- Header do Comprovante -->
+    <ion-card class="comprovante-header">
+      <ion-card-content>
+        <div class="unb-header">
+          <div class="unb-logo">
+            <ion-icon name="school-outline" size="large"></ion-icon>
+          </div>
+          <div class="unb-info">
+            <h1>Universidade de Brasília</h1>
+            <h2>Sistema de Graduação - SIGAA</h2>
+            <h3>Comprovante de Matrícula</h3>
+          </div>
+        </div>
+        
+        <ion-chip [color]="getStatusBadgeColor()" class="status-chip">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <ion-label>{{ getStatusText() }}</ion-label>
+        </ion-chip>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Informações do Aluno -->
+    <ion-card *ngIf="comprovante">
+      <ion-card-header>
+        <ion-card-title>Dados do Aluno</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <ion-label>
+              <h3>Nome</h3>
+              <p>{{ comprovante.aluno.nome }}</p>
+            </ion-label>
+          </div>
+          
+          <div class="info-item">
+            <ion-label>
+              <h3>Matrícula</h3>
+              <p>{{ comprovante.aluno.matricula }}</p>
+            </ion-label>
+          </div>
+          
+          <div class="info-item">
+            <ion-label>
+              <h3>Curso</h3>
+              <p>{{ comprovante.aluno.curso }}</p>
+            </ion-label>
+          </div>
+          
+          <div class="info-item">
+            <ion-label>
+              <h3>Período Letivo</h3>
+              <p>{{ comprovante.periodo_letivo }}</p>
+            </ion-label>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Disciplinas Matriculadas -->
+    <ion-card *ngIf="comprovante && comprovante.matriculas.length > 0">
+      <ion-card-header>
+        <ion-card-title>Disciplinas Matriculadas</ion-card-title>
+        <ion-card-subtitle>{{ comprovante.matriculas.length }} disciplina(s)</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="disciplinas-list">
+          <div *ngFor="let matricula of comprovante.matriculas; let i = index" class="disciplina-item">
+            <div class="disciplina-header">
+              <span class="numero">{{ i + 1 }}.</span>
+              <div class="disciplina-info">
+                <h4>{{ matricula.disciplina_nome }}</h4>
+                <p class="codigo-turma">{{ matricula.disciplina_codigo }} - Turma {{ matricula.turma_codigo }}</p>
+              </div>
+              <ion-chip color="primary" class="creditos-chip">
+                <ion-label>{{ matricula.creditos }} créditos</ion-label>
+              </ion-chip>
+            </div>
+            
+            <div class="disciplina-detalhes">
+              <div class="detalhe-item">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ formatarHorarios(matricula.horarios) }}</span>
+              </div>
+              
+              <div class="detalhe-item">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>{{ matricula.professores.join(', ') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Nenhuma Matrícula -->
+    <ion-card *ngIf="comprovante && comprovante.matriculas.length === 0">
+      <ion-card-content>
+        <div class="empty-state">
+          <ion-icon name="document-outline" size="large"></ion-icon>
+          <h3>Nenhuma Matrícula Confirmada</h3>
+          <p>Você ainda não possui matrículas confirmadas para este período letivo.</p>
+          <ion-button fill="outline" (click)="voltarParaHome()">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Solicitar Matrículas
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Resumo -->
+    <ion-card *ngIf="comprovante && comprovante.matriculas.length > 0">
+      <ion-card-header>
+        <ion-card-title>Resumo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="resumo-grid">
+          <div class="resumo-item">
+            <ion-icon name="library-outline" color="primary"></ion-icon>
+            <div>
+              <h4>{{ comprovante.total_creditos }}</h4>
+              <p>Total de Créditos</p>
+            </div>
+          </div>
+          
+          <div class="resumo-item">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <div>
+              <h4>{{ comprovante.matriculas.length }}</h4>
+              <p>Disciplinas</p>
+            </div>
+          </div>
+          
+          <div class="resumo-item">
+            <ion-icon name="calendar-outline" color="medium"></ion-icon>
+            <div>
+              <h4>{{ comprovante.periodo_letivo }}</h4>
+              <p>Período</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Informações do Documento -->
+    <ion-card *ngIf="comprovante" class="documento-info">
+      <ion-card-content>
+        <div class="doc-details">
+          <div class="doc-item">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Gerado em: {{ formatarData(comprovante.data_geracao) }}</span>
+          </div>
+          
+          <div class="doc-item">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Documento válido e autêntico</span>
+          </div>
+          
+          <div class="doc-item">
+            <ion-icon name="globe-outline"></ion-icon>
+            <span>Sistema SIGAA - UnB</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Ações -->
+    <div class="action-buttons" *ngIf="comprovante && comprovante.matriculas.length > 0">
+      <ion-button expand="block" color="primary" (click)="baixarComprovante()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Baixar PDF
+      </ion-button>
+      
+      <div class="secondary-actions">
+        <ion-button fill="outline" (click)="imprimirComprovante()">
+          <ion-icon name="print-outline" slot="start"></ion-icon>
+          Imprimir
+        </ion-button>
+        
+        <ion-button fill="outline" (click)="compartilharComprovante()">
+          <ion-icon name="share-outline" slot="start"></ion-icon>
+          Compartilhar
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Botão Voltar -->
+    <ion-button expand="block" fill="clear" (click)="voltarParaHome()">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Voltar ao Início
+    </ion-button>
+  </div>
+</ion-content>
